@@ -6,6 +6,7 @@
       <el-card shadow="never" class="login-card">
         <!--登入表單-->
         <!-- el-form > el-form-item > el-input -->
+        <!-- ref=傳遞內容 rules=驗證規則  model=表單數據 -->
         <el-form ref="form" :model="loginForm" :rules="loginRules">
           <el-form-item prop="mobile">
             <el-input v-model="loginForm.mobile" placeholder="請輸入您的手機" />
@@ -33,15 +34,17 @@
   </div>
 </template>
 <script>
+import request from "@/utils/request";
 export default {
   name: "Login",
   data() {
     return {
       loginForm: {
-        mobile: "",
-        password: "",
-        isAgree: false,
+        mobile: process.env.NODE_ENV === "development" ? "13800000002" : "",
+        password: process.env.NODE_ENV === "development" ? "hm#qd@23!" : "",
+        isAgree: process.env.NODE_ENV === "development",
       },
+      // 驗證規則
       loginRules: {
         mobile: [
           {
@@ -68,17 +71,17 @@ export default {
             trigger: "blur",
           },
         ],
-        // required只能检测 null undefined ""
+        // required只能檢查 null undefined " "
         isAgree: [
           {
             validator: (rule, value, callback) => {
-              // rule校验规则
-              // value 校验的值
+              // rule檢查規則
+              // value 檢查值
               // callback 函数 - promise resolve reject
               // callback() callback(new Error(错误信息))
               value
                 ? callback()
-                : callback(new Error("您必须勾选用户的使用协议"));
+                : callback(new Error("您必須勾選用戶使用協議"));
             },
           },
         ],
@@ -87,9 +90,12 @@ export default {
   },
   methods: {
     login() {
-      this.$refs.form.validate((isOK) => {
+      this.$refs.form.validate(async (isOK) => {
         if (isOK) {
-          alert("校验通过");
+          await this.$store.dispatch("user/login", this.loginForm);
+          //vuex 中的action 會返回一個promise
+          // 跳轉主頁
+          this.$router.push("/");
         }
       });
     },
