@@ -1,12 +1,7 @@
 import router from "@/router";
 import store from "@/store";
-import { Message } from "element-ui";
 import NProgress from "nprogress"; // progress bar
 import "nprogress/nprogress.css"; // progress bar style
-import { getToken } from "@/utils/auth"; // get token from cookie
-import getPageTitle from "@/utils/get-page-title";
-
-NProgress.configure({ showSpinner: false }); // NProgress Configuration
 
 const whiteList = ["/login", "/404"]; // no redirect whitelist
 // 路由前置守衛
@@ -20,6 +15,10 @@ router.beforeEach(async (to, from, next) => {
       next("/"); //跳到首頁
       NProgress.done();
     } else {
+      //判斷是否獲取過用戶基本資料
+      if (!store.getters.userId) {
+        await store.dispatch("user/getUserInfo");
+      }
       next();
     }
   } else {

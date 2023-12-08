@@ -1,8 +1,9 @@
 import { getToken, setToken, removeToken } from "@/utils/auth";
-import { login } from "@/api/user";
+import { login, getUserInfo } from "@/api/user";
 
 const state = {
   token: getToken(), //從緩存讀取token初始值
+  userInfo: {}, //用戶基本資料
 };
 
 const mutations = {
@@ -17,6 +18,9 @@ const mutations = {
     //清除緩存
     removeToken();
   },
+  setUserInfo(state, userInfo) {
+    state.userInfo = userInfo;
+  },
 };
 
 const actions = {
@@ -27,6 +31,11 @@ const actions = {
     const token = await login(data);
     //返回一個token
     context.commit("setToken", token);
+  },
+  //獲取用戶基本資料
+  async getUserInfo(context) {
+    const result = await getUserInfo();
+    context.commit("setUserInfo", result);
   },
 };
 

@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { createNamespacedHelpers, mapGetters } from "vuex";
 
 export default {
   name: "Dashboard",
