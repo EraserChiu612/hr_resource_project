@@ -37,6 +37,14 @@ const actions = {
     const result = await getUserInfo();
     context.commit("setUserInfo", result);
   },
+
+  //登出
+  logout(context) {
+    //清除token
+    context.commit("removeToken");
+    //清除用戶資料
+    context.commit("setUserInfo", {});
+  },
 };
 
 export default {
