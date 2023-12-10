@@ -39,7 +39,7 @@ module.exports = {
     proxy: {
       // path: 目標服務器
       "/api": {
-        target: "http://heimahr-t.itheima.net/", // 請求地址
+        target: "http://heimahr.itheima.net/", // 請求地址
       },
     },
     // before: require('./mock/mock-server.js') 基礎模板模擬數據,會攔截請求,不需要

@@ -18,52 +18,166 @@
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
           <router-link to="/">
-            <el-dropdown-item> Home </el-dropdown-item>
+            <el-dropdown-item> 首頁 </el-dropdown-item>
           </router-link>
           <a
             target="_blank"
-            href="https://github.com/PanJiaChen/vue-admin-template/"
+            href="https://github.com/EraserChiu612?tab=repositories"
           >
             <el-dropdown-item>Github</el-dropdown-item>
           </a>
-          <a
-            target="_blank"
-            href="https://panjiachen.github.io/vue-element-admin-site/#/"
-          >
-            <el-dropdown-item>Docs</el-dropdown-item>
+          <!-- prevent 事件修飾符, 阻止默認事件 -->
+          <a target="_blank" @click.prevent="updatePassword">
+            <el-dropdown-item>修改密碼</el-dropdown-item>
           </a>
+          <!-- native 事件修飾符 -->
+          <!-- 註冊組件的根元素的原生事件 -->
           <el-dropdown-item divided @click.native="logout">
-            <span style="display: block">Log Out</span>
+            <span style="display: block">登出</span>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
+    <!-- 放置彈出層 -->
+    <!-- sync 接收子組件傳送過來的值 -->
+    <el-dialog
+      width="500px"
+      title="修改密碼"
+      :visible.sync="showDialog"
+      @close="btnCancel"
+    >
+      <!-- 放置表單 -->
+      <el-form ref="passForm" label-width="120px" :model="passForm">
+        <el-form-item label="舊密碼" prop="oldPassword">
+          <el-input
+            show-password
+            v-model="passForm.oldPassword"
+            size="small"
+            placeholder="請輸入舊密碼"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="新密碼" prop="newPassword">
+          <el-input
+            show-password
+            v-model="passForm.newPassword"
+            size="small"
+            placeholder="請輸入新密碼"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="確認密碼" prop="confirmPassword">
+          <el-input
+            show-password
+            v-model="passForm.confirmPassword"
+            size="small"
+            placeholder="請再次輸入新密碼"
+          ></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button @click="btnOK" type="primary" size="mini"
+            >確認修改</el-button
+          >
+          <el-button @click="btnCancel" size="mini">取消 </el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import Breadcrumb from "@/components/Breadcrumb";
-import Hamburger from "@/components/Hamburger";
+import Breadcrumb from '@/components/Breadcrumb'
+import Hamburger from '@/components/Hamburger'
+import { mapGetters } from 'vuex'
+import { updatePassword } from '@/api/user'
 
 export default {
   components: {
     Breadcrumb,
     Hamburger,
   },
+  data() {
+    return {
+      showDialog: false, //控制彈出層的顯示和隱藏
+      passForm: {
+        oldPassword: '',
+        newPassword: '',
+        confirmPassword: '', //確認密碼(前端需要)
+      },
+      rules: {
+        oldPassword: [
+          {
+            required: true,
+            message: '請輸入舊密碼',
+            trigger: 'blur',
+          },
+        ],
+        newPassword: [
+          {
+            required: true,
+            message: '請輸入新密碼',
+            trigger: 'blur',
+          },
+          {
+            min: 6,
+            max: 16,
+            message: '密碼長度須為 6 到 16 個字符',
+            trigger: 'blur',
+          },
+        ],
+        confirmPassword: [
+          {
+            required: true,
+            message: '請再次輸入新密碼',
+            trigger: 'blur',
+          },
+          {
+            validator: (rule, value, callback) => {
+              if (value !== this.passForm.newPassword) {
+                callback(new Error('兩次輸入密碼不一致'))
+              } else {
+                callback()
+              }
+            },
+            trigger: 'blur',
+          },
+        ],
+      },
+    }
+  },
   computed: {
-    ...mapGetters(["sidebar", "avatar", "name"]),
+    ...mapGetters(['sidebar', 'avatar', 'name']),
   },
   methods: {
+    updatePassword() {
+      //彈出層
+      this.showDialog = true
+    },
     toggleSideBar() {
-      this.$store.dispatch("app/toggleSideBar");
+      this.$store.dispatch('app/toggleSideBar')
     },
     async logout() {
-      await this.$store.dispatch("user/logout");
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`);
+      // 調用退出登陸的action
+      await this.$store.dispatch('user/logout')
+      this.$router.push('/login')
+    },
+    //確定修改密碼
+    btnOK() {
+      this.$refs.passForm.validate(async (isOK) => {
+        if (isOK) {
+          //驗證通過,調用接口
+          await updatePassword(this.passForm)
+          this.$message.success('修改密碼成功')
+          // 成功
+          this.btnCancel() //關閉彈出層
+        }
+      })
+    },
+    //取消修改密碼
+    btnCancel() {
+      this.$refs.passForm.resetFields() //重置表單
+      this.showDialog = false //關閉彈出層
     },
   },
-};
+}
 </script>
 
 <style lang="scss" scoped>
