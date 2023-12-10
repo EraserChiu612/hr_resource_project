@@ -13,3 +13,13 @@ export function getUserInfo() {
     url: "/sys/profile",
   });
 }
+
+//更新密碼
+
+export function updatePassword(data) {
+  return request({
+    url: "/sys/user/updatePass",
+    method: "put",
+    data,
+  });
+}
