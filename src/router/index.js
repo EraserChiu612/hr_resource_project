@@ -12,6 +12,7 @@ import attendanceRouter from './modules/attendance'
 import employeeRouter from './modules/employee'
 import salaryRouter from './modules/salary'
 import socialRouter from './modules/social'
+import permissionRouter from './modules/permission'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
